@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const cp = require("child_process");
+const ffmpeg = require("ffmpeg-static");
 const ytdl = require("ytdl-core");
 const searchYoutube = require("youtube-api-v3-search");
 const contentDisposition = require("content-disposition");
@@ -56,33 +58,59 @@ app.get("/download", async (req, res) => {
   if (!ytdl.validateID(url) && !ytdl.validateURL(url)) {
     return res.status(400).json({ success: false, error: "No valid YouTube Id!" });
   }
+
   const formats = ["mp4", "mp3", "mov", "flv"];
   let format = f;
   if (formats.includes(f)) {
     format = f;
   }
+
   try {
     const result = await ytdl.getBasicInfo(url, reqOptions);
-    const hd1080Format = ytdl.chooseFormat(result.formats, { quality: "137" });
-    const kb128Format = ytdl.chooseFormat(result.formats, { quality: "140" });
-    //console.log("Format found!", format);
     const {
       videoDetails: { title },
     } = result;
     res.setHeader("Content-disposition", contentDisposition(`${title}.${format}`));
-    ytdl(url, {
-      format: format == "mp3" ? kb128Format : hd1080Format,
-      ...reqOptions,
-      quality: format == "mp3" ? "highestaudio" : "highestvideo",
-      filter: format == "mp3" ? "audioonly" : "videoandaudio",
-    })
-      .on("progress", (chunkLength, downloaded, total) => {
-        // const download = (downloaded / 1024 / 1024).toFixed(2);
-        // const tot = (total / 1024 / 1024).toFixed(2);
-        // const progress = Math.ceil((download / tot) * 100);
-        // console.log(`${download}MB of ${tot}MB\n`);
-      })
-      .pipe(res);
+
+    const audio = ytdl(url, { quality: "highestaudio" }).pipe(res);
+    if (format != "mp3") {
+      const video = ytdl(url, { quality: "highestvideo" });
+
+      //prettier-ignore
+      // Start the ffmpeg child process
+      const ffmpegProcess = cp.spawn(ffmpeg,
+        [
+          // Remove ffmpeg's console spamming
+          "-loglevel", "8", "-hide_banner",
+          // Set inputs
+          "-i", "pipe:4",
+          "-i", "pipe:5",
+          // Map audio & video from streams
+          "-map", "0:a",
+          "-map", "1:v",
+          // Keep encoding
+          "-c:v", "copy",
+          // Define output file
+          `${title}.${format}`,
+        ],
+        {
+          windowsHide: true,
+          stdio: [
+            /* Standard: stdin, stdout, stderr */
+            "inherit", "inherit", "inherit",
+            /* Custom: pipe:3, pipe:4, pipe:5 */
+            "pipe", "pipe", "pipe",
+          ],
+        }
+      );
+      ffmpegProcess.on("close", () => {
+        console.log("done");
+      });
+
+      // Link streams
+      audio.pipe(ffmpegProcess.stdio[4]);
+      video.pipe(ffmpegProcess.stdio[5]);
+    }
   } catch (err) {
     console.log("error ", err);
     res.redirect(`http://${req.headers.host}?error=downloadError`);
