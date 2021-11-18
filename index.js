@@ -1,10 +1,12 @@
-const express = require("express");
+const contentDisposition = require("content-disposition");
 const cors = require("cors");
 const cp = require("child_process");
+const express = require("express");
 const ffmpeg = require("ffmpeg-static");
+const fs = require("fs");
 const ytdl = require("ytdl-core");
 const searchYoutube = require("youtube-api-v3-search");
-const contentDisposition = require("content-disposition");
+
 const app = express();
 const port = process.env.PORT || 4000;
 const YOUTUBE_KEY = require("./youtube_key");
@@ -18,8 +20,26 @@ const reqOptions = {
   },
 };
 
+const dir = "public";
+const subDir = "uploads";
+
+if (!fs.existsSync(dir)) {
+  fs.mkdirSync(dir);
+}
+if (!fs.existsSync(`${dir}/${subDir}`)) {
+  fs.mkdirSync(`${dir}/${subDir}`);
+}
+
+app.use(express.static("public"));
+
 app.use(cors());
 app.use(express.json());
+
+app.use((_, res, next) => {
+  res.header("Cross-Origin-Opener-Policy", "same-origin");
+  res.header("Cross-Origin-Embedder-Policy", "require-corp");
+  next();
+});
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));
 
@@ -72,9 +92,15 @@ app.get("/download", async (req, res) => {
     } = result;
     res.setHeader("Content-disposition", contentDisposition(`${title}.${format}`));
 
-    const audio = ytdl(url, { quality: "highestaudio" }).pipe(res);
+    if (format == "mp3") {
+      ytdl(url, { quality: "highestaudio" }).pipe(res);
+    }
+
     if (format != "mp3") {
+      const audio = ytdl(url, { quality: "highestaudio" });
       const video = ytdl(url, { quality: "highestvideo" });
+      const output = `${dir}/${subDir}/${Date.now()}_${title}.${format}`;
+      const outputName = `${title}.${format}`;
 
       //prettier-ignore
       // Start the ffmpeg child process
@@ -91,23 +117,26 @@ app.get("/download", async (req, res) => {
           // Keep encoding
           "-c:v", "copy",
           // Define output file
-          `${title}.${format}`,
+          `${output}`,
         ],
         {
           windowsHide: true,
           stdio: [
             /* Standard: stdin, stdout, stderr */
             "inherit", "inherit", "inherit",
-            /* Custom: pipe:3, pipe:4, pipe:5 */
             "pipe", "pipe", "pipe",
           ],
         }
       );
       ffmpegProcess.on("close", () => {
         console.log("done");
+        console.log(output);
+        res.download(output, outputName, err => {
+          if (err) throw err;
+          fs.unlinkSync(output);
+        });
       });
 
-      // Link streams
       audio.pipe(ffmpegProcess.stdio[4]);
       video.pipe(ffmpegProcess.stdio[5]);
     }
