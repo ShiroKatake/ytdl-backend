@@ -93,7 +93,40 @@ app.get("/download", async (req, res) => {
     res.setHeader("Content-disposition", contentDisposition(`${title}.${format}`));
 
     if (format == "mp3") {
-      ytdl(url, { quality: "highestaudio" }).pipe(res);
+      const audio = ytdl(url, { quality: "highestaudio" });
+      const output = `${dir}/${subDir}/${Date.now()}_${title}.${format}`;
+      const outputName = `${title}.${format}`;
+
+      //prettier-ignore
+      // Start the ffmpeg child process
+      const ffmpegProcess = cp.spawn(ffmpeg,
+        [
+          // Remove ffmpeg's console spamming
+          "-loglevel", "8", "-hide_banner",
+          // Set inputs
+          "-i", "pipe:4",
+          // Define output file
+          `${output}`,
+        ],
+        {
+          windowsHide: true,
+          stdio: [
+            /* Standard: stdin, stdout, stderr */
+            "inherit", "inherit", "inherit",
+            "pipe", "pipe", "pipe",
+          ],
+        }
+      );
+      ffmpegProcess.on("close", () => {
+        console.log(output);
+        res.download(output, outputName, err => {
+          if (err) throw err;
+          fs.unlinkSync(output);
+          console.log("done");
+        });
+      });
+
+      audio.pipe(ffmpegProcess.stdio[4]);
     }
 
     if (format != "mp3") {
@@ -129,11 +162,11 @@ app.get("/download", async (req, res) => {
         }
       );
       ffmpegProcess.on("close", () => {
-        console.log("done");
         console.log(output);
         res.download(output, outputName, err => {
           if (err) throw err;
           fs.unlinkSync(output);
+          console.log("done");
         });
       });
 
