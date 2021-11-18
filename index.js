@@ -97,6 +97,11 @@ app.get("/download", async (req, res) => {
       const output = `${dir}/${subDir}/${Date.now()}_${title}.${format}`;
       const outputName = `${title}.${format}`;
 
+      const info = await ytdl.getInfo(url);
+      const vidFormat = ytdl.chooseFormat(info.formats, { quality: "highestaudio" });
+      const { audioBitrate } = vidFormat;
+      //console.log(`Format found! Audio bitrate is: ${audioBitrate}kbps`);
+
       //prettier-ignore
       // Start the ffmpeg child process
       const ffmpegProcess = cp.spawn(ffmpeg,
@@ -105,6 +110,8 @@ app.get("/download", async (req, res) => {
           "-loglevel", "8", "-hide_banner",
           // Set inputs
           "-i", "pipe:4",
+          // Set audio bitrate
+          "-b:a", `128k`,
           // Define output file
           `${output}`,
         ],
@@ -118,11 +125,11 @@ app.get("/download", async (req, res) => {
         }
       );
       ffmpegProcess.on("close", () => {
-        console.log(output);
+        //console.log(output);
         res.download(output, outputName, err => {
           if (err) throw err;
           fs.unlinkSync(output);
-          console.log("done");
+          //console.log("done");
         });
       });
 
@@ -162,11 +169,11 @@ app.get("/download", async (req, res) => {
         }
       );
       ffmpegProcess.on("close", () => {
-        console.log(output);
+        //console.log(output);
         res.download(output, outputName, err => {
           if (err) throw err;
           fs.unlinkSync(output);
-          console.log("done");
+          //console.log("done");
         });
       });
 
