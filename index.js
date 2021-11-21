@@ -73,6 +73,10 @@ app.get("/metainfo", async (req, res) => {
   }
 });
 
+const sanitizeString = str => {
+  return str.replace(/[^a-z0-9áéíóúñü \.,_-]/gim, "");
+};
+
 app.get("/download", async (req, res) => {
   const { v: url, format: f = "mp4" } = req.query;
   if (!ytdl.validateID(url) && !ytdl.validateURL(url)) {
@@ -94,8 +98,8 @@ app.get("/download", async (req, res) => {
 
     if (format == "mp3") {
       const audio = ytdl(url, { quality: "highestaudio" });
-      const output = `${dir}/${subDir}/${Date.now()}_${title}.${format}`;
-      const outputName = `${title}.${format}`;
+      const outputName = sanitizeString(`${title}.${format}`);
+      const output = `${dir}/${subDir}/${Date.now()}_${outputName}`;
 
       const info = await ytdl.getInfo(url);
       const vidFormat = ytdl.chooseFormat(info.formats, { quality: "highestaudio" });
