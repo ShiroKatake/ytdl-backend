@@ -7,14 +7,10 @@ const fs = require("fs");
 const ytdl = require("ytdl-core");
 const searchYoutube = require("youtube-api-v3-search");
 const readline = require("readline");
-const HttpsProxyAgent = require("https-proxy-agent");
 
 const app = express();
 const port = process.env.PORT || 4000;
 const YOUTUBE_KEY = require("./youtube_key");
-
-const proxy = "http://154.16.63.16:3128";
-const agent = HttpsProxyAgent(proxy);
 
 const reqOptions = {
   requestOptions: {
