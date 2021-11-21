@@ -7,13 +7,18 @@ const fs = require("fs");
 const ytdl = require("ytdl-core");
 const searchYoutube = require("youtube-api-v3-search");
 const readline = require("readline");
+const HttpsProxyAgent = require("https-proxy-agent");
 
 const app = express();
 const port = process.env.PORT || 4000;
 const YOUTUBE_KEY = require("./youtube_key");
 
+const proxy = "111.111.111.111:8080";
+const agent = HttpsProxyAgent(proxy);
+
 const reqOptions = {
   requestOptions: {
+    agent,
     headers: {
       cookie:
         "YSC=qZZrU4An-4I; VISITOR_INFO1_LIVE=iMVovQ6qFyk; LOGIN_INFO=AFmmF2swRQIgQSL6tARBWN_2nNLN9O-tBN5D0rz28iU5jVVgL8lQX_ACIQC5CF1IJyJdGEVeP6Us_dsoLnAvExixNLoPSd4hv8OJrg:QUQ3MjNmeGZTX3hkdFhXVWc2bk5XM1NGT2tYUHBKa3JGaEtsVjJmRDNVVlRaVmR6ZzhRSk5GQkdqUldNekVkcEFuVGFxREVDZ2NpS3FQYVZOaVc3S05zdVlUVWpCZXk4TFh1V3Fkb3JSTUpaZUx5NjdPdFZjcEdNU2k2QndWZmFQdU45VnBraE1fY1dleGJaaVlaUnNVakdmVERaV1VnOGl3; wide=1; CONSENT=PENDING+598; SID=Dwg8gykwwGRBovdnVH2KIEdyRQZuL8kdjmJl8wwYhqSe593bzUkTYcrlepZEjgd3Y1SN5g.; __Secure-1PSID=Dwg8gykwwGRBovdnVH2KIEdyRQZuL8kdjmJl8wwYhqSe593b5RNGnYt0_zKTsFwRsHyomw.; __Secure-3PSID=Dwg8gykwwGRBovdnVH2KIEdyRQZuL8kdjmJl8wwYhqSe593bc9nFrAZD8qBo13xd88WqHw.; HSID=Akhn3zPXusEaGIaUO; SSID=A4hyZ8r8YQQuEysap; APISID=79kVW5xH91TYs5uf/AJHK3S2I6BlUI4LhP; SAPISID=0gLc_j0WDsFwmgYQ/AsT31s7BE9BROnYP5; __Secure-1PAPISID=0gLc_j0WDsFwmgYQ/AsT31s7BE9BROnYP5; __Secure-3PAPISID=0gLc_j0WDsFwmgYQ/AsT31s7BE9BROnYP5; PREF=tz=Australia.Sydney&f6=40000000&f5=30000; SIDCC=AJi4QfEaKm2GQJ9bklZ6YuOB_BBPg6opS9Xw7m0xLa6DTJhhdVrdAdfZzVgrIg9Z4hfLFj3jVgc; __Secure-3PSIDCC=AJi4QfEW5iyuYHwnSuDy16vS8ku7BZZJ87d-pjsX4u4F_jMT7lK4LDev9Ir_r00OYTJg1cbq1uyS",
