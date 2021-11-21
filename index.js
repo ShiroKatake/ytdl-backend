@@ -6,6 +6,7 @@ const ffmpeg = require("ffmpeg-static");
 const fs = require("fs");
 const ytdl = require("ytdl-core");
 const searchYoutube = require("youtube-api-v3-search");
+const readline = require("readline");
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -14,8 +15,8 @@ const YOUTUBE_KEY = require("./youtube_key");
 const reqOptions = {
   requestOptions: {
     headers: {
-      Cookie:
-        "CONSENT=YES+DE.de+V14+BX; VISITOR_INFO1_LIVE=kYpNG7OoCbY; PREF=al=de&f4=4000000; SID=3geAZGdQt9hIJxt0ST2xySpK_6yaw0kvNarw6v9JTDpZQoKQ5FK1nYqc3dXGQzpM4GRWbA.; __Secure-3PSID=3geAZGdQt9hIJxt0ST2xySpK_6yaw0kvNarw6v9JTDpZQoKQ_zINvfbB7jPNTk2I3oTLYg.; HSID=ApvJR6aSSMIpzAioX; SSID=A4qjlas1kBmX90vX0; APISID=uKTdp7kEoR-Th5wk/Ajvd4cTFRNTvsnnPY; SAPISID=h6Tyds3npH_icpOT/Ae34WsO4j7jVpaLFp; __Secure-3PAPISID=h6Tyds3npH_icpOT/Ae34WsO4j7jVpaLFp; LOGIN_INFO=AFmmF2swRQIhAOZ3RDhhitXMYTD-meEWipRIFho5YaO05aGgteYU2w9SAiA-OKgaB64v_a2AWsOfiJk1JJW6miXXu64EibIGjReNdg:QUQ3MjNmeGs2UTRLWDVYNDNnUVNGRFQ0bThEeGl0ZVpJd2haQldweWpJbFNLTEMtNlJHRmJGTlE2SDc3Rkdyb282elprUllkQnRqc0RJYnNiUzhYNnJ3MENBYjNkcmo2dnFqTFNtMDJCTTJBdV9MMlNvYmdiS2xaOFZvUjFsTk5OX0xFZGQ2M2x1SFZKbEZFSFJ1Z3RXeUxfXzNGZmxsZTdkV3dFWFBOUElMN1B0T0pKemw2aU1F; YSC=hgmjViK_jxo; SIDCC=AJi4QfHbV2YQFgcCjOAOdQG0JWvpGtoxBGtAhNp3rJyU223hoL_CV6Aj3BrLOiQYlZEgVrCwg1I; __Secure-3PSIDCC=AJi4QfGrxA6SlqFGd46AK01jAKdxmwFHWC9u4uFW1t4dnB3lhPCZ-3Gr-Bv2E5LK55HMANtVMQ",
+      cookie:
+        "YSC=qZZrU4An-4I; VISITOR_INFO1_LIVE=iMVovQ6qFyk; LOGIN_INFO=AFmmF2swRQIgQSL6tARBWN_2nNLN9O-tBN5D0rz28iU5jVVgL8lQX_ACIQC5CF1IJyJdGEVeP6Us_dsoLnAvExixNLoPSd4hv8OJrg:QUQ3MjNmeGZTX3hkdFhXVWc2bk5XM1NGT2tYUHBKa3JGaEtsVjJmRDNVVlRaVmR6ZzhRSk5GQkdqUldNekVkcEFuVGFxREVDZ2NpS3FQYVZOaVc3S05zdVlUVWpCZXk4TFh1V3Fkb3JSTUpaZUx5NjdPdFZjcEdNU2k2QndWZmFQdU45VnBraE1fY1dleGJaaVlaUnNVakdmVERaV1VnOGl3; wide=1; CONSENT=PENDING+598; SID=Dwg8gykwwGRBovdnVH2KIEdyRQZuL8kdjmJl8wwYhqSe593bzUkTYcrlepZEjgd3Y1SN5g.; __Secure-1PSID=Dwg8gykwwGRBovdnVH2KIEdyRQZuL8kdjmJl8wwYhqSe593b5RNGnYt0_zKTsFwRsHyomw.; __Secure-3PSID=Dwg8gykwwGRBovdnVH2KIEdyRQZuL8kdjmJl8wwYhqSe593bc9nFrAZD8qBo13xd88WqHw.; HSID=Akhn3zPXusEaGIaUO; SSID=A4hyZ8r8YQQuEysap; APISID=79kVW5xH91TYs5uf/AJHK3S2I6BlUI4LhP; SAPISID=0gLc_j0WDsFwmgYQ/AsT31s7BE9BROnYP5; __Secure-1PAPISID=0gLc_j0WDsFwmgYQ/AsT31s7BE9BROnYP5; __Secure-3PAPISID=0gLc_j0WDsFwmgYQ/AsT31s7BE9BROnYP5; PREF=tz=Australia.Sydney&f6=40000000&f5=30000; SIDCC=AJi4QfEaKm2GQJ9bklZ6YuOB_BBPg6opS9Xw7m0xLa6DTJhhdVrdAdfZzVgrIg9Z4hfLFj3jVgc; __Secure-3PSIDCC=AJi4QfEW5iyuYHwnSuDy16vS8ku7BZZJ87d-pjsX4u4F_jMT7lK4LDev9Ir_r00OYTJg1cbq1uyS",
     },
   },
 };
@@ -87,9 +88,32 @@ const sanitizeString = str => {
 
 app.get("/download", async (req, res) => {
   const { v: url, format: f = "mp4" } = req.query;
+
   if (!ytdl.validateID(url) && !ytdl.validateURL(url)) {
     return res.status(400).json({ success: false, error: "No valid YouTube Id!" });
   }
+
+  const tracker = {
+    start: Date.now(),
+    audio: { downloaded: 0, total: Infinity },
+    video: { downloaded: 0, total: Infinity },
+  };
+
+  let progressbarHandle = null;
+  const progressbarInterval = 1000;
+  const showProgress = () => {
+    readline.cursorTo(process.stdout, 0);
+    const toMB = i => (i / 1024 / 1024).toFixed(2);
+
+    process.stdout.write(`Audio  | ${((tracker.audio.downloaded / tracker.audio.total) * 100).toFixed(2)}% processed `);
+    process.stdout.write(`(${toMB(tracker.audio.downloaded)}MB of ${toMB(tracker.audio.total)}MB).${" ".repeat(10)}\n`);
+
+    process.stdout.write(`Video  | ${((tracker.video.downloaded / tracker.video.total) * 100).toFixed(2)}% processed `);
+    process.stdout.write(`(${toMB(tracker.video.downloaded)}MB of ${toMB(tracker.video.total)}MB).${" ".repeat(10)}\n`);
+
+    process.stdout.write(`running for: ${((Date.now() - tracker.start) / 1000 / 60).toFixed(2)} Minutes.`);
+    readline.moveCursor(process.stdout, 0, -2);
+  };
 
   const formats = ["mp4", "mp3", "mov", "flv"];
   let format = f;
@@ -105,7 +129,9 @@ app.get("/download", async (req, res) => {
     res.setHeader("Content-disposition", contentDisposition(`${title}.${format}`));
 
     if (format == "mp3") {
-      const audio = ytdl(url, { quality: "highestaudio" });
+      const audio = ytdl(url, { quality: "highestaudio" }).on("progress", (_, downloaded, total) => {
+        tracker.audio = { downloaded, total };
+      });
       const outputName = `${sanitizeString(title)}.${format}`;
       const outputPath = `${dir}/${subDir}/${Date.now()}_${outputName}`;
 
@@ -115,6 +141,8 @@ app.get("/download", async (req, res) => {
         [
           // Remove ffmpeg's console spamming
           "-loglevel", "8", "-hide_banner",
+          // Redirect/Enable progress messages
+          '-progress', 'pipe:3',
           // Set inputs
           "-i", "pipe:4",
           // Set audio bitrate
@@ -135,17 +163,36 @@ app.get("/download", async (req, res) => {
         //console.log(output);
         res.download(outputPath, outputName, err => {
           if (err) throw err;
+          process.stdout.write("\n\n\n\n");
+          clearInterval(progressbarHandle);
           fs.unlinkSync(outputPath);
           //console.log("done");
         });
+      });
+
+      ffmpegProcess.stdio[3].on("data", chunk => {
+        // Start the progress bar
+        if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
+        // Parse the param=value list returned by ffmpeg
+        const lines = chunk.toString().trim().split("\n");
+        const args = {};
+        for (const l of lines) {
+          const [key, value] = l.split("=");
+          args[key.trim()] = value.trim();
+        }
+        console.log(args);
       });
 
       audio.pipe(ffmpegProcess.stdio[4]);
     }
 
     if (format != "mp3") {
-      const audio = ytdl(url, { quality: "highestaudio" });
-      const video = ytdl(url, { quality: "highestvideo" });
+      const audio = ytdl(url, { quality: "highestaudio" }).on("progress", (_, downloaded, total) => {
+        tracker.audio = { downloaded, total };
+      });
+      const video = ytdl(url, { quality: "highestvideo" }).on("progress", (_, downloaded, total) => {
+        tracker.video = { downloaded, total };
+      });
       const outputName = `${sanitizeString(title)}.${format}`;
       const outputPath = `${dir}/${subDir}/${Date.now()}_${outputName}`;
 
@@ -155,6 +202,8 @@ app.get("/download", async (req, res) => {
         [
           // Remove ffmpeg's console spamming
           "-loglevel", "8", "-hide_banner",
+          // Redirect/Enable progress messages
+          '-progress', 'pipe:3',
           // Set inputs
           "-i", "pipe:4",
           "-i", "pipe:5",
@@ -179,9 +228,23 @@ app.get("/download", async (req, res) => {
         //console.log(output);
         res.download(outputPath, outputName, err => {
           if (err) throw err;
+          process.stdout.write("\n\n\n\n");
+          clearInterval(progressbarHandle);
           fs.unlinkSync(outputPath);
           //console.log("done");
         });
+      });
+
+      ffmpegProcess.stdio[3].on("data", chunk => {
+        // Start the progress bar
+        if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
+        // Parse the param=value list returned by ffmpeg
+        const lines = chunk.toString().trim().split("\n");
+        const args = {};
+        for (const l of lines) {
+          const [key, value] = l.split("=");
+          args[key.trim()] = value.trim();
+        }
       });
 
       audio.pipe(ffmpegProcess.stdio[4]);
