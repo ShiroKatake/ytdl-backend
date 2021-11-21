@@ -52,8 +52,16 @@ app.get("/suggestions", async (req, res) => {
   };
   try {
     const data = await searchYoutube(YOUTUBE_KEY, options);
-    const { items } = data;
-    return res.status(200).json({ success: true, data: items });
+    if (data.error) {
+      return res
+        .status(403)
+        .send(
+          "This app was limited to 100 searches (in total) per day. This is due to YouTube's restriction on search API. Contact the developer of this app for more information."
+        );
+    } else {
+      const { items } = data;
+      return res.status(200).json({ success: true, data: items });
+    }
   } catch (error) {
     return res.status(400).json({ success: false, error });
   }
