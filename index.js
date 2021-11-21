@@ -13,7 +13,7 @@ const app = express();
 const port = process.env.PORT || 4000;
 const YOUTUBE_KEY = require("./youtube_key");
 
-const proxy = "111.111.111.111:8080";
+const proxy = "http://111.111.111.111:8080";
 const agent = HttpsProxyAgent(proxy);
 
 const reqOptions = {
