@@ -74,7 +74,7 @@ app.get("/metainfo", async (req, res) => {
 });
 
 const sanitizeString = str => {
-  return str.replace(/[^a-z0-9áéíóúñü \.,_-]/gim, "");
+  return str.replace(/[/\\?%*:|"<>]/g, "");
 };
 
 app.get("/download", async (req, res) => {
@@ -98,13 +98,8 @@ app.get("/download", async (req, res) => {
 
     if (format == "mp3") {
       const audio = ytdl(url, { quality: "highestaudio" });
-      const outputName = sanitizeString(`${title}.${format}`);
-      const output = `${dir}/${subDir}/${Date.now()}_${outputName}`;
-
-      const info = await ytdl.getInfo(url);
-      const vidFormat = ytdl.chooseFormat(info.formats, { quality: "highestaudio" });
-      const { audioBitrate } = vidFormat;
-      //console.log(`Format found! Audio bitrate is: ${audioBitrate}kbps`);
+      const outputName = `${sanitizeString(title)}.${format}`;
+      const outputPath = `${dir}/${subDir}/${Date.now()}_${outputName}`;
 
       //prettier-ignore
       // Start the ffmpeg child process
@@ -117,7 +112,7 @@ app.get("/download", async (req, res) => {
           // Set audio bitrate
           "-b:a", `128k`,
           // Define output file
-          `${output}`,
+          `${outputPath}`,
         ],
         {
           windowsHide: true,
@@ -130,9 +125,9 @@ app.get("/download", async (req, res) => {
       );
       ffmpegProcess.on("close", () => {
         //console.log(output);
-        res.download(output, outputName, err => {
+        res.download(outputPath, outputName, err => {
           if (err) throw err;
-          fs.unlinkSync(output);
+          fs.unlinkSync(outputPath);
           //console.log("done");
         });
       });
@@ -143,8 +138,8 @@ app.get("/download", async (req, res) => {
     if (format != "mp3") {
       const audio = ytdl(url, { quality: "highestaudio" });
       const video = ytdl(url, { quality: "highestvideo" });
-      const output = `${dir}/${subDir}/${Date.now()}_${title}.${format}`;
-      const outputName = `${title}.${format}`;
+      const outputName = `${sanitizeString(title)}.${format}`;
+      const outputPath = `${dir}/${subDir}/${Date.now()}_${outputName}`;
 
       //prettier-ignore
       // Start the ffmpeg child process
@@ -161,7 +156,7 @@ app.get("/download", async (req, res) => {
           // Keep encoding
           "-c:v", "copy",
           // Define output file
-          `${output}`,
+          `${outputPath}`,
         ],
         {
           windowsHide: true,
@@ -174,9 +169,9 @@ app.get("/download", async (req, res) => {
       );
       ffmpegProcess.on("close", () => {
         //console.log(output);
-        res.download(output, outputName, err => {
+        res.download(outputPath, outputName, err => {
           if (err) throw err;
-          fs.unlinkSync(output);
+          fs.unlinkSync(outputPath);
           //console.log("done");
         });
       });
