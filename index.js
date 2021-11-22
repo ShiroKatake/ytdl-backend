@@ -114,6 +114,7 @@ app.post("/download", async (req, res) => {
   if (!ytdl.validateID(url) && !ytdl.validateURL(url)) {
     return res.status(400).json({ success: false, error: "No valid YouTube Id!" });
   }
+
   const tracker = {
     start: Date.now(),
     audio: { downloaded: 0, total: Infinity },
@@ -136,52 +137,65 @@ app.post("/download", async (req, res) => {
     const outputPath = `${dir}/${subDir}/${Date.now()}_${outputName}`;
     res.setHeader("Content-disposition", contentDisposition(`${outputName}`));
 
+    //prettier-ignore
+    const audioEncodeConfig = [
+      // Remove ffmpeg's console spamming
+      "-loglevel", "8", "-hide_banner",
+      // Redirect/Enable progress messages
+      '-progress', 'pipe:3',
+      // Set inputs
+      "-i", "pipe:4",
+      // Set audio bitrate
+      "-b:a", `128k`,
+      // Define output file
+      `${outputPath}`,
+    ];
+
+    //prettier-ignore
+    const videoEncodeConfig = [
+      // Remove ffmpeg's console spamming
+      "-loglevel", "8", "-hide_banner",
+      // Redirect/Enable progress messages
+      '-progress', 'pipe:3',
+      // Set inputs
+      "-i", "pipe:4",
+      "-i", "pipe:5",
+      // Map audio & video from streams
+      "-map", "0:a",
+      "-map", "1:v",
+      // Keep encoding
+      "-c:v", "copy",
+      // Define output file
+      `${outputPath}`,
+    ];
+
+    //prettier-ignore
+    const encodeOptions = {
+      windowsHide: true,
+      stdio: [
+        /* Standard: stdin, stdout, stderr */
+        "inherit", "inherit", "inherit",
+        "pipe", "pipe", "pipe",
+      ],
+    };
+
+    let ffmpegProcess;
+
     if (format == "mp3") {
+      // Download stream
       const audio = ytdl(url, { quality: "highestaudio" }).on("progress", (_, downloaded, total) => {
         tracker.audio = { downloaded, total };
       });
 
-      //prettier-ignore
       // Start the ffmpeg child process
-      const ffmpegProcess = cp.spawn(ffmpeg,
-        [
-          // Remove ffmpeg's console spamming
-          "-loglevel", "8", "-hide_banner",
-          // Redirect/Enable progress messages
-          '-progress', 'pipe:3',
-          // Set inputs
-          "-i", "pipe:4",
-          // Set audio bitrate
-          "-b:a", `128k`,
-          // Define output file
-          `${outputPath}`,
-        ],
-        {
-          windowsHide: true,
-          stdio: [
-            /* Standard: stdin, stdout, stderr */
-            "inherit", "inherit", "inherit",
-            "pipe", "pipe", "pipe",
-          ],
-        }
-      );
-      ffmpegProcess.on("close", async () => {
-        res.download(outputPath, outputName, async err => {
-          if (err) throw err;
-          fs.unlinkSync(outputPath);
-          res.end();
-          //console.log("done");
-        });
-      });
+      ffmpegProcess = cp.spawn(ffmpeg, audioEncodeConfig, encodeOptions);
 
-      ffmpegProcess.stdio[3].on("data", () => {
-        CLIENTS[req.body.uid].send(JSON.stringify(tracker));
-      });
-
+      // Pipe downloaded streams into ffmpeg
       audio.pipe(ffmpegProcess.stdio[4]);
     }
 
     if (format != "mp3") {
+      // Download stream
       const audio = ytdl(url, { quality: "highestaudio" }).on("progress", (_, downloaded, total) => {
         tracker.audio = { downloaded, total };
       });
@@ -189,46 +203,26 @@ app.post("/download", async (req, res) => {
         tracker.video = { downloaded, total };
       });
 
-      //prettier-ignore
       // Start the ffmpeg child process
-      const ffmpegProcess = cp.spawn(ffmpeg,
-        [
-          // Remove ffmpeg's console spamming
-          "-loglevel", "8", "-hide_banner",
-          // Redirect/Enable progress messages
-          '-progress', 'pipe:3',
-          // Set inputs
-          "-i", "pipe:4",
-          "-i", "pipe:5",
-          // Map audio & video from streams
-          "-map", "0:a",
-          "-map", "1:v",
-          // Keep encoding
-          "-c:v", "copy",
-          // Define output file
-          `${outputPath}`,
-        ],
-        {
-          windowsHide: true,
-          stdio: [
-            /* Standard: stdin, stdout, stderr */
-            "inherit", "inherit", "inherit",
-            "pipe", "pipe", "pipe",
-          ],
-        }
-      );
-      ffmpegProcess.on("close", async () => {
-        res.download(outputPath, outputName, async err => {
-          if (err) throw err;
-          fs.unlinkSync(outputPath);
-          res.end();
-          //console.log("done");
-        });
-      });
+      ffmpegProcess = cp.spawn(ffmpeg, videoEncodeConfig, encodeOptions);
 
+      // Pipe downloaded streams into ffmpeg
       audio.pipe(ffmpegProcess.stdio[4]);
       video.pipe(ffmpegProcess.stdio[5]);
     }
+
+    ffmpegProcess.stdio[3].on("data", () => {
+      CLIENTS[req.body.uid].send(JSON.stringify(tracker));
+    });
+
+    ffmpegProcess.on("close", async () => {
+      res.download(outputPath, outputName, async err => {
+        if (err) throw err;
+        fs.unlinkSync(outputPath);
+        res.end();
+        //console.log("done");
+      });
+    });
   } catch (err) {
     console.log("error ", err);
     res.redirect(`http://${req.headers.host}?error=downloadError`);
