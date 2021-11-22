@@ -116,9 +116,8 @@ app.post("/download", async (req, res) => {
   }
 
   const tracker = {
-    start: Date.now(),
-    audio: { downloaded: 0, total: Infinity },
-    video: { downloaded: 0, total: Infinity },
+    audio: { downloaded: 0, total: 0 },
+    video: { downloaded: 0, total: 0 },
   };
 
   const formats = ["mp4", "mp3", "mov", "flv"];
@@ -212,7 +211,12 @@ app.post("/download", async (req, res) => {
     }
 
     ffmpegProcess.stdio[3].on("data", () => {
-      CLIENTS[req.body.uid].send(JSON.stringify(tracker));
+      CLIENTS[req.body.uid].send(
+        JSON.stringify({
+          downloaded: tracker.audio.downloaded + tracker.video.downloaded,
+          total: tracker.audio.total + tracker.video.total,
+        })
+      );
     });
 
     ffmpegProcess.on("close", async () => {
