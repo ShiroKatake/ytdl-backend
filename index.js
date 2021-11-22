@@ -5,11 +5,17 @@ const express = require("express");
 const ffmpeg = require("ffmpeg-static");
 const fs = require("fs");
 const searchYoutube = require("youtube-api-v3-search");
+const server = require("http").createServer();
+const WSServer = require("ws").Server;
 const ytdl = require("ytdl-core");
+const YOUTUBE_KEY = require("./youtube_key");
+
+const CLIENTS = [];
 
 const app = express();
 const port = process.env.PORT || 4000;
-const YOUTUBE_KEY = require("./youtube_key");
+
+const wss = new WSServer({ server: server, clientTracking: true });
 
 const reqOptions = {
   requestOptions: {
@@ -41,7 +47,9 @@ app.use((_, res, next) => {
   next();
 });
 
-app.listen(port, () => console.log(`Server is running on port ${port}`));
+server.on("request", app);
+
+server.listen(port, () => console.log(`Server is running on port ${port}`));
 
 app.get("/suggestions", async (req, res) => {
   const { search } = req.query;
@@ -85,13 +93,27 @@ const sanitizeFileName = str => {
   return str.replace(/[/\\?%*:|"<>]/g, "");
 };
 
-app.get("/download", async (req, res) => {
+wss.getUniqueID = function () {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + "-" + s4();
+};
+
+wss.on("connection", ws => {
+  ws.id = wss.getUniqueID();
+  CLIENTS[ws.id] = ws;
+  ws.send(ws.id);
+});
+
+app.post("/download", async (req, res) => {
   const { v: url, format: f = "mp4" } = req.query;
 
   if (!ytdl.validateID(url) && !ytdl.validateURL(url)) {
     return res.status(400).json({ success: false, error: "No valid YouTube Id!" });
   }
-
   const tracker = {
     start: Date.now(),
     audio: { downloaded: 0, total: Infinity },
@@ -150,6 +172,10 @@ app.get("/download", async (req, res) => {
           res.end();
           //console.log("done");
         });
+      });
+
+      ffmpegProcess.stdio[3].on("data", () => {
+        CLIENTS[req.body.uid].send(JSON.stringify(tracker));
       });
 
       audio.pipe(ffmpegProcess.stdio[4]);
