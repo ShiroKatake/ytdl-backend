@@ -4,11 +4,10 @@ const cp = require("child_process");
 const express = require("express");
 const ffmpeg = require("ffmpeg-static");
 const fs = require("fs");
-const searchYoutube = require("youtube-api-v3-search");
 const server = require("http").createServer();
 const WSServer = require("ws").Server;
 const ytdl = require("ytdl-core");
-const YOUTUBE_KEY = require("./youtube_key");
+const ytsr = require("ytsr");
 
 const CLIENTS = [];
 
@@ -59,19 +58,12 @@ app.get("/suggestions", async (req, res) => {
     type: "video",
   };
   try {
-    const data = await searchYoutube(YOUTUBE_KEY, options);
-    if (data.error) {
-      return res
-        .status(403)
-        .send(
-          "This app was limited to 100 searches (in total) per day. This is due to YouTube's restriction on search API. Contact the developer of this app for more information."
-        );
-    } else {
-      const { items } = data;
-      return res.status(200).json({ success: true, data: items });
-    }
+    const filters = await ytsr.getFilters(options.q);
+    const filter = filters.get("Type").get("Video");
+    const searchResults = await ytsr(filter.url, { limit: 5 });
+    return res.status(200).json({ success: true, data: searchResults.items });
   } catch (error) {
-    return res.status(400).json({ success: false, error });
+    return res.status(400).send({ success: false, error });
   }
 });
 
