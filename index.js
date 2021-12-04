@@ -4,11 +4,7 @@ const cp = require("child_process");
 const express = require("express");
 const ffmpeg = require("ffmpeg-static");
 const fs = require("fs");
-const options = {
-  key: fs.readFileSync("./localhost-key.pem"),
-  cert: fs.readFileSync("./localhost.pem"),
-};
-const server = require("https").createServer(options);
+const server = require("http").createServer();
 const WSServer = require("ws").Server;
 const ytdl = require("ytdl-core");
 const ytsr = require("ytsr");
@@ -48,7 +44,6 @@ app.use(express.json());
 app.use((_, res, next) => {
   res.header("Cross-Origin-Opener-Policy", "same-origin");
   res.header("Cross-Origin-Embedder-Policy", "require-corp");
-  res.header("Access-Control-Allow-Origin", "*");
   next();
 });
 
