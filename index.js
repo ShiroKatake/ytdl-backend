@@ -8,6 +8,7 @@ const server = require("http").createServer();
 const WSServer = require("ws").Server;
 const ytdl = require("ytdl-core");
 const ytsr = require("ytsr");
+const ytpl = require("ytpl");
 
 const CLIENTS = [];
 
@@ -222,5 +223,15 @@ app.post("/download", async (req, res) => {
   } catch (err) {
     console.log("error ", err);
     res.redirect(`http://${req.headers.host}?error=downloadError`);
+  }
+});
+
+app.get("/playlist", async (req, res) => {
+  try {
+    const { pl: url } = req.query;
+    const playlist = await ytpl(url);
+    return res.status(200).json({ success: true, data: playlist });
+  } catch (error) {
+    return res.status(400).send({ success: false, error });
   }
 });

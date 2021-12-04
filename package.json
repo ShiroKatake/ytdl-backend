@@ -16,6 +16,7 @@
     "socket.io": "^4.2.0",
     "ws": "^8.2.3",
     "ytdl-core": "fent/node-ytdl-core#pull/1022/head",
+    "ytpl": "^2.2.3",
     "ytsr": "^3.5.3"
   },
   "devDependencies": {
