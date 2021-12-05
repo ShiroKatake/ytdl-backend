@@ -86,7 +86,7 @@ const sanitizeFileName = str => {
   return str.replace(/[/\\?%*:|"<>]/g, "");
 };
 
-wss.getUniqueID = function () {
+const getUniqueID = () => {
   function s4() {
     return Math.floor((1 + Math.random()) * 0x10000)
       .toString(16)
@@ -96,7 +96,7 @@ wss.getUniqueID = function () {
 };
 
 wss.on("connection", ws => {
-  ws.id = wss.getUniqueID();
+  ws.id = getUniqueID();
   CLIENTS[ws.id] = ws;
   ws.send(ws.id);
 });
@@ -113,20 +113,15 @@ app.post("/download", async (req, res) => {
     video: { downloaded: 0, total: 0 },
   };
 
-  const formats = ["mp4", "mp3", "mov", "flv"];
+  const formats = ["mp4", "mp3"];
   let format = f;
   if (formats.includes(f)) {
     format = f;
   }
 
   try {
-    const result = await ytdl.getBasicInfo(url, reqOptions);
-    const {
-      videoDetails: { title },
-    } = result;
-
-    const outputName = `${sanitizeFileName(title)}.${format}`;
-    const outputPath = `${dir}/${subDir}/${Date.now()}_${outputName}`;
+    const outputName = `${Date.now()}_${getUniqueID()}.${format}`;
+    const outputPath = `${dir}/${subDir}/${outputName}`;
     res.setHeader("Content-disposition", contentDisposition(`${outputName}`));
 
     //prettier-ignore
