@@ -1,4 +1,5 @@
 const fs = require("fs");
+const CLIENTS = [];
 
 const sanitizeFileName = str => {
   return str.replace(/[/\\?%*:|"<>]/g, "");
@@ -31,3 +32,4 @@ const getUniqueID = () => {
 module.exports.getUniqueID = getUniqueID;
 module.exports.createDownloadDirectory = createDownloadDirectory;
 module.exports.generateDownloadPath = generateDownloadPath;
+module.exports.CLIENTS = CLIENTS;
