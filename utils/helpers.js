@@ -29,7 +29,7 @@ const getUniqueID = () => {
   return s4() + s4() + "-" + s4();
 };
 
-module.exports.getUniqueID = getUniqueID;
+module.exports.CLIENTS = CLIENTS;
 module.exports.createDownloadDirectory = createDownloadDirectory;
 module.exports.generateDownloadPath = generateDownloadPath;
-module.exports.CLIENTS = CLIENTS;
+module.exports.getUniqueID = getUniqueID;

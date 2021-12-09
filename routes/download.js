@@ -6,7 +6,7 @@ const ffmpeg = require("ffmpeg-static");
 const fs = require("fs");
 const ytdl = require("ytdl-core");
 const { audioEncodeConfig, encodeOptions, videoEncodeConfig } = require("../utils/ffmpeg");
-const { getUniqueID, generateDownloadPath, CLIENTS } = require("../utils/helpers");
+const { generateDownloadPath, CLIENTS } = require("../utils/helpers");
 
 router.post("/download", async (req, res) => {
   const { v: url, format: format } = req.query;
@@ -20,7 +20,7 @@ router.post("/download", async (req, res) => {
   };
 
   try {
-    const outputName = `${Date.now()}_${getUniqueID()}.${format}`;
+    const outputName = `${url}_${Date.now()}.${format}`;
     const outputPath = generateDownloadPath(outputName);
     res.setHeader("Content-disposition", contentDisposition(`${outputName}`));
 
