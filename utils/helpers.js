@@ -1,10 +1,6 @@
 const fs = require("fs");
 const CLIENTS = [];
 
-const sanitizeFileName = str => {
-  return str.replace(/[/\\?%*:|"<>]/g, "");
-};
-
 const dir = "public";
 const subDir = "uploads";
 const createDownloadDirectory = () => {

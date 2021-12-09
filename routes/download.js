@@ -22,9 +22,9 @@ router.post("/download", async (req, res) => {
   try {
     const outputName = `${url}_${getUniqueID()}_${Date.now()}.${format}`;
     const outputPath = generateDownloadPath(outputName);
-    res.setHeader("Content-disposition", contentDisposition(`${outputName}`));
 
     let ffmpegProcess;
+    let ffmpegConfig = [];
 
     if (format == "mp3") {
       // Download stream
@@ -33,8 +33,8 @@ router.post("/download", async (req, res) => {
       });
 
       // Start the ffmpeg child process
-      audioEncodeConfig.push(outputPath);
-      ffmpegProcess = cp.spawn(ffmpeg, audioEncodeConfig, encodeOptions);
+      ffmpegConfig.push(...audioEncodeConfig, outputPath);
+      ffmpegProcess = cp.spawn(ffmpeg, ffmpegConfig, encodeOptions);
 
       // Pipe downloaded streams into ffmpeg
       audio.pipe(ffmpegProcess.stdio[4]);
@@ -50,8 +50,8 @@ router.post("/download", async (req, res) => {
       });
 
       // Start the ffmpeg child process
-      videoEncodeConfig.push(outputPath);
-      ffmpegProcess = cp.spawn(ffmpeg, videoEncodeConfig, encodeOptions);
+      ffmpegConfig.push(...videoEncodeConfig, outputPath);
+      ffmpegProcess = cp.spawn(ffmpeg, ffmpegConfig, encodeOptions);
 
       // Pipe downloaded streams into ffmpeg
       audio.pipe(ffmpegProcess.stdio[4]);
