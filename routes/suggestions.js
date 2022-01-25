@@ -13,9 +13,9 @@ router.get("/suggestions", async (req, res) => {
     const filters = await ytsr.getFilters(options.q);
     const filter = filters.get("Type").get("Video");
     const searchResults = await ytsr(filter.url, { limit: 5 });
-    return res.status(200).json({ success: true, data: searchResults.items });
+    return res.status(200).json(searchResults.items);
   } catch (error) {
-    return res.status(400).send({ success: false, error });
+    return res.status(400).send(error.message);
   }
 });
 

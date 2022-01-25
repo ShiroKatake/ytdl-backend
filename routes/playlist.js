@@ -6,9 +6,10 @@ router.get("/playlist", async (req, res) => {
   try {
     const { pl: url } = req.query;
     const playlist = await ytpl(url, { limit: Infinity });
-    return res.status(200).json({ success: true, data: playlist });
+    return res.status(200).json(playlist);
   } catch (error) {
-    return res.status(400).send({ success: false, error });
+    console.log(error.message)
+    return res.status(400).send(error.message);
   }
 });
 

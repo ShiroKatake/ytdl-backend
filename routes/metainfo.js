@@ -14,14 +14,14 @@ const reqOptions = {
 router.get("/metainfo", async (req, res) => {
   const { url } = req.query;
   if (!ytdl.validateID(url) && !ytdl.validateURL(url)) {
-    return res.status(400).json({ success: false, error: "No valid YouTube Id!" });
+    return res.status(400).json("Invalid url.");
   }
   try {
     const result = await ytdl.getBasicInfo(url, reqOptions);
-    return res.status(200).json({ success: true, data: result });
+    return res.status(200).json(result);
   } catch (error) {
     console.log(error);
-    return res.status(400).send("Something went wrong when trying to fetch the YouTube link.");
+    return res.status(400).send(error.message);
   }
 });
 
