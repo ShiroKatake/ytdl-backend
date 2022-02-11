@@ -3,8 +3,6 @@ const router = express.Router();
 const ytsr = require("ytsr");
 
 router.get("/suggestions", async (req, res) => {
-  res.set("Access-Control-Allow-Origin", "https://shirokatake.github.io");
-
   const { search } = req.query;
   const options = {
     q: search,

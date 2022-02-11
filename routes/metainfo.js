@@ -12,8 +12,6 @@ const reqOptions = {
 };
 
 router.get("/metainfo", async (req, res) => {
-  res.set("Access-Control-Allow-Origin", "https://shirokatake.github.io");
-
   const { url } = req.query;
   if (!ytdl.validateID(url) && !ytdl.validateURL(url)) {
     return res.status(400).json("Invalid url.");
