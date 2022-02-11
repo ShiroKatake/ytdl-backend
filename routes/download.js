@@ -13,6 +13,7 @@ router.post("/download", async (req, res) => {
   res.header({
     'Access-Control-Allow-Methods': 'GET, POST',
     'Access-Control-Allow-Headers': 'Content-Type',
+    "Access-Control-Allow-Credentials": "true",
     'Access-Control-Expose-Headers': 'Content-Disposition',
     "Cross-Origin-Opener-Policy": "same-origin",
     "Cross-Origin-Embedder-Policy": "require-corp"
