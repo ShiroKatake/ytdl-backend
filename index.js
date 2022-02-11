@@ -12,13 +12,7 @@ createDownloadDirectory();
 app.use(express.static("public"));
 app.use(express.json());
 
-app.use(cors({ exposedHeaders: ["Content-Disposition"] }));
-app.use((_, res, next) => {
-  res.header("Cross-Origin-Opener-Policy", "same-origin");
-  res.header("Cross-Origin-Embedder-Policy", "require-corp");
-  res.header("Access-Control-Allow-Origin", "*");
-  next();
-});
+app.use(cors());
 
 server.on("request", app);
 server.listen(port, () => console.log(`Server is running on port ${port}`));
