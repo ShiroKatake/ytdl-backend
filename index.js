@@ -27,6 +27,8 @@ app.use((_, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET,POST');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   res.header('Access-Control-Expose-Headers', 'Content-Disposition');
+  res.header("Cross-Origin-Opener-Policy", "same-origin");
+  res.header("Cross-Origin-Embedder-Policy", "require-corp");
   next();
 });
 
