@@ -12,13 +12,11 @@ createDownloadDirectory();
 app.use(express.static("public"));
 app.use(express.json());
 
-app.use(cors({ exposedHeaders: ["Content-Disposition"] }));
-app.use((_, res, next) => {
-  res.append('Access-Control-Allow-Origin', ['*']);
-  res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-  res.append('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
+app.use(cors({
+  origin: "https://shirokatake.github.io",
+  credentials: true,
+  exposedHeaders: ["Content-Disposition"]
+}));
 
 server.on("request", app);
 server.listen(port, () => console.log(`Server is running on port ${port}`));
