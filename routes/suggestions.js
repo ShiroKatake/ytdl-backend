@@ -3,6 +3,8 @@ const router = express.Router();
 const ytsr = require("ytsr");
 
 router.get("/suggestions", async (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+
   const { search } = req.query;
   const options = {
     q: search,

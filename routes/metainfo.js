@@ -12,6 +12,8 @@ const reqOptions = {
 };
 
 router.get("/metainfo", async (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+
   const { url } = req.query;
   if (!ytdl.validateID(url) && !ytdl.validateURL(url)) {
     return res.status(400).json("Invalid url.");
