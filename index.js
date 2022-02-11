@@ -23,12 +23,14 @@ wss.on("connection", ws => {
 });
 
 app.use((_, res, next) => {
-  res.header('Access-Control-Allow-Origin', "https://shirokatake.github.io");
-  res.header('Access-Control-Allow-Methods', 'GET,POST');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  res.header('Access-Control-Expose-Headers', 'Content-Disposition');
-  res.header("Cross-Origin-Opener-Policy", "same-origin");
-  res.header("Cross-Origin-Embedder-Policy", "require-corp");
+  res.setHeader('Access-Control-Allow-Origin', "https://shirokatake.github.io");
+  res.header({
+    'Access-Control-Allow-Methods': 'GET, POST',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Expose-Headers': 'Content-Disposition',
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "Cross-Origin-Embedder-Policy": "require-corp"
+  });
   next();
 });
 
