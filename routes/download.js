@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const router = express.Router();
 const contentDisposition = require("content-disposition");
 const cp = require("child_process");
@@ -8,7 +9,7 @@ const ytdl = require("ytdl-core");
 const { audioEncodeConfig, encodeOptions, videoEncodeConfig } = require("../utils/ffmpeg");
 const { generateDownloadPath, getUniqueID, CLIENTS } = require("../utils/helpers");
 
-router.post("/download", async (req, res) => {
+router.post("/download", cors(), async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', "https://shirokatake.github.io");
   res.header({
     "Access-Control-Allow-Methods": "GET, POST",
