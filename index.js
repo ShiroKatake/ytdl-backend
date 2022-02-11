@@ -12,14 +12,6 @@ createDownloadDirectory();
 app.use(express.static("public"));
 app.use(express.json());
 
-app.use(cors({ exposedHeaders: ["Content-Disposition"] }));
-app.use((_, res, next) => {
-  res.header('Access-Control-Allow-Origin', "https://shirokatake.github.io/");
-  res.header('Access-Control-Allow-Methods', 'GET,POST');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
-
 server.on("request", app);
 server.listen(port, () => console.log(`Server is running on port ${port}`));
 
@@ -28,6 +20,14 @@ wss.on("connection", ws => {
   ws.id = getUniqueID();
   CLIENTS[ws.id] = ws;
   ws.send(ws.id);
+});
+
+app.use(cors({ exposedHeaders: ["Content-Disposition"] }));
+app.use((_, res, next) => {
+  res.header('Access-Control-Allow-Origin', "https://shirokatake.github.io");
+  res.header('Access-Control-Allow-Methods', 'GET,POST');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
 });
 
 const suggestions = require("./routes/suggestions");
