@@ -14,9 +14,9 @@ app.use(express.json());
 
 app.use(cors({ exposedHeaders: ["Content-Disposition"] }));
 app.use((_, res, next) => {
-  res.append('Access-Control-Allow-Origin', "https://shirokatake.github.io/");
-  res.append('Access-Control-Allow-Methods', 'GET,POST');
-  res.append('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Origin', "https://shirokatake.github.io/");
+  res.header('Access-Control-Allow-Methods', 'GET,POST');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
   next();
 });
 
