@@ -25,9 +25,10 @@ wss.on("connection", ws => {
 app.use((_, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', "https://shirokatake.github.io");
   res.header({
-    'Access-Control-Allow-Methods': 'GET',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Expose-Headers': 'Content-Disposition',
+    "Access-Control-Allow-Methods": "GET, POST",
+    "Access-Control-Allow-Headers": "Content-Type, X-Requested-With",
+    "Access-Control-Allow-Credentials": "true",
+    "Access-Control-Expose-Headers": "Content-Disposition",
     "Cross-Origin-Opener-Policy": "same-origin",
     "Cross-Origin-Embedder-Policy": "require-corp"
   });
