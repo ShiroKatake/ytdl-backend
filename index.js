@@ -12,10 +12,7 @@ createDownloadDirectory();
 app.use(express.static("public"));
 app.use(express.json());
 
-app.all(cors({
-  exposedHeaders: ["Content-Disposition"],
-  origin: "https://shirokatake.github.io"
-}));
+app.use(cors({ exposedHeaders: ["Content-Disposition"] }));
 
 server.on("request", app);
 server.listen(port, () => console.log(`Server is running on port ${port}`));

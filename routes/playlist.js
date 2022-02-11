@@ -3,6 +3,8 @@ const router = express.Router();
 const ytpl = require("ytpl");
 
 router.get("/playlist", async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "https://shirokatake.github.io");
+
   try {
     const { pl: url } = req.query;
     const playlist = await ytpl(url, { limit: Infinity });
