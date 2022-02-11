@@ -8,7 +8,7 @@ const ytdl = require("ytdl-core");
 const { audioEncodeConfig, encodeOptions, videoEncodeConfig } = require("../utils/ffmpeg");
 const { generateDownloadPath, getUniqueID, CLIENTS } = require("../utils/helpers");
 
-router.get("/download", async (req, res) => {
+router.post("/download", async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', "https://shirokatake.github.io");
   res.header({
     'Access-Control-Allow-Methods': 'GET, POST',
