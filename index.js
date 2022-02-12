@@ -13,13 +13,11 @@ app.use(express.static("public"));
 app.use(express.json());
 
 app.all('*', function (req, res, next) {
-  if (!req.get('Origin')) return next();
-
   res.set('Access-Control-Allow-Origin', 'https://shirokatake.github.io');
   res.set('Access-Control-Allow-Methods', 'GET,POST');
   res.set('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type');
 
-  if ('OPTIONS' == req.method) return res.send(200);
+  if (req.method == 'OPTIONS') return res.send(200);
 
   next();
 });
