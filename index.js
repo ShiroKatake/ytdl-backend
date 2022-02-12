@@ -22,8 +22,17 @@ wss.on("connection", ws => {
   ws.send(ws.id);
 });
 
-app.use(cors());
-app.options('*', cors());
+app.all('*', function (req, res, next) {
+  if (!req.get('Origin')) return next();
+
+  res.set('Access-Control-Allow-Origin', 'https://shirokatake.github.io');
+  res.set('Access-Control-Allow-Methods', 'GET,POST');
+  res.set('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type');
+
+  if ('OPTIONS' == req.method) return res.send(200);
+
+  next();
+});
 
 const suggestions = require("./routes/suggestions");
 const metainfo = require("./routes/metainfo");
