@@ -12,16 +12,6 @@ createDownloadDirectory();
 app.use(express.static("public"));
 app.use(express.json());
 
-server.on("request", app);
-server.listen(port, () => console.log(`Server is running on port ${port}`));
-
-const wss = new WSServer({ server: server, clientTracking: true });
-wss.on("connection", ws => {
-  ws.id = getUniqueID();
-  CLIENTS[ws.id] = ws;
-  ws.send(ws.id);
-});
-
 app.all('*', function (req, res, next) {
   if (!req.get('Origin')) return next();
 
@@ -32,6 +22,16 @@ app.all('*', function (req, res, next) {
   if ('OPTIONS' == req.method) return res.send(200);
 
   next();
+});
+
+server.on("request", app);
+server.listen(port, () => console.log(`Server is running on port ${port}`));
+
+const wss = new WSServer({ server: server, clientTracking: true });
+wss.on("connection", ws => {
+  ws.id = getUniqueID();
+  CLIENTS[ws.id] = ws;
+  ws.send(ws.id);
 });
 
 const suggestions = require("./routes/suggestions");
