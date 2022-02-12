@@ -13,9 +13,9 @@ app.use(express.static("public"));
 app.use(express.json());
 
 app.all('*', function (req, res, next) {
-  res.set('Access-Control-Allow-Origin', 'https://shirokatake.github.io');
-  res.set('Access-Control-Allow-Methods', 'GET,POST');
-  res.set('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type');
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', '*');
+  res.set('Access-Control-Allow-Headers', '*');
 
   if (req.method == 'OPTIONS') return res.send(200);
 
