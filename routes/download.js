@@ -9,7 +9,7 @@ const ytdl = require("ytdl-core");
 const { audioEncodeConfig, encodeOptions, videoEncodeConfig } = require("../utils/ffmpeg");
 const { generateDownloadPath, getUniqueID, CLIENTS } = require("../utils/helpers");
 
-router.post("/download", cors(), async (req, res) => {
+router.post("/download", async (req, res) => {
   const { v: url, format: format } = req.query;
   if (!ytdl.validateID(url) && !ytdl.validateURL(url)) {
     return res.status(400).json({ success: false, error: "Not a valid YouTube Id!" });
