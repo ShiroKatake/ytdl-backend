@@ -64,6 +64,7 @@ router.get("/download", async (req, res) => {
           total: tracker.audio.total + tracker.video.total,
         })
       );
+      res.writeContinue();
     });
 
     ffmpegProcess.on("close", async () => {
