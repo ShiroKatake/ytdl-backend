@@ -1,4 +1,3 @@
-const cors = require("cors");
 const express = require("express");
 const server = require("http").createServer();
 const WSServer = require("ws").Server;
@@ -11,6 +10,13 @@ createDownloadDirectory();
 
 app.use(express.static("public"));
 app.use(express.json());
+
+app.use((_, res, next) => {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', '*');
+  res.set('Access-Control-Allow-Headers', '*');
+  next();
+});
 
 server.on("request", app);
 server.listen(port, () => console.log(`Server is running on port ${port}`));
