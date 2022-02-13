@@ -8,6 +8,7 @@ const { audioEncodeConfig, encodeOptions, videoEncodeConfig } = require("../util
 const { generateDownloadPath, getUniqueID, CLIENTS } = require("../utils/helpers");
 
 router.get("/download", async (req, res) => {
+  res.set("Transfer-Encoding", "chunked");
   const { v: url, format: format } = req.query;
   if (!ytdl.validateID(url) && !ytdl.validateURL(url)) {
     return res.status(400).json({ success: false, error: "Not a valid YouTube Id!" });
@@ -64,6 +65,7 @@ router.get("/download", async (req, res) => {
           total: tracker.audio.total + tracker.video.total,
         })
       );
+      res.write({ message: "Still working" });
     });
 
     ffmpegProcess.on("close", async () => {
