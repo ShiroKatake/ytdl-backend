@@ -15,7 +15,6 @@ app.use((_, res, next) => {
   res.set('Access-Control-Allow-Origin', 'https://shirokatake.github.io');
   res.set('Access-Control-Allow-Methods', 'GET');
   res.set('Access-Control-Allow-Headers', '*');
-  res.set("Transfer-Encoding", "chunked");
   next();
 });
 
