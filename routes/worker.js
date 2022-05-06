@@ -33,7 +33,7 @@ function start() {
     }
 
     while (progress < 100) {
-      await sleep(50);
+      await sleep(400);
       progress += 1;
       job.progress(progress)
     }
