@@ -19,9 +19,6 @@ app.use((_, res, next) => {
   next();
 });
 
-server.on("request", app);
-server.listen(port, () => console.log(`Server is running on port ${port}`));
-
 const wss = new WSServer({ server: server, clientTracking: true });
 wss.on("connection", ws => {
   ws.id = getUniqueID();
@@ -65,3 +62,6 @@ app.get('/job/:id', async (req, res) => {
 workQueue.on('global:completed', (jobId, result) => {
   console.log(`Job ${jobId} completed with result ${result}`);
 });
+
+server.on("request", app);
+server.listen(port, () => console.log(`Server is running on port ${port}`));
