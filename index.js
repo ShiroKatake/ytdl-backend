@@ -39,6 +39,7 @@ app.use(metainfo);
 app.use(playlist);
 app.use(download);
 
+let Queue = require('bull');
 const REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 const workQueue = new Queue('work', REDIS_URL);
 
