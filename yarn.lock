@@ -898,7 +898,7 @@ lodash.isarguments@^3.1.0:
   resolved "https://registry.yarnpkg.com/lodash.isarguments/-/lodash.isarguments-3.1.0.tgz#2f573d85c6a24289ff00663b491c1d338ff3458a"
   integrity sha1-L1c9hcaiQon/AGY7SRwdM4/zRYo=
 
-lodash@^4.17.21:
+lodash@^4.17.20, lodash@^4.17.21:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -1534,6 +1534,13 @@ supports-color@^7.1.0:
   integrity sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==
   dependencies:
     has-flag "^4.0.0"
+
+throng@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/throng/-/throng-5.0.0.tgz#f9550c0221e579073f68a00be33a593d094e4d29"
+  integrity sha512-nrq7+qQhn/DL8yW/wiwImTepfi6ynOCAe7moSwgoYN1F32yQMdBkuFII40oAkb3cDfaL6q5BIoFTDCHdMWQ8Pw==
+  dependencies:
+    lodash "^4.17.20"
 
 to-readable-stream@^1.0.0:
   version "1.0.0"
