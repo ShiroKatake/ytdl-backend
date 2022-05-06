@@ -18,10 +18,10 @@ router.get("/download", async (req, res) => {
     video: { downloaded: 0, total: 0 },
   };
 
-  try {
-    const outputName = `${url}_${getUniqueID()}_${Date.now()}.${format}`;
-    const outputPath = generateDownloadPath(outputName);
+  const outputName = `${url}_${getUniqueID()}_${Date.now()}.${format}`;
+  const outputPath = generateDownloadPath(outputName);
 
+  try {
     let ffmpegProcess;
     let ffmpegConfig = [];
 
@@ -75,9 +75,11 @@ router.get("/download", async (req, res) => {
       });
     });
   } catch (err) {
-    console.log("error ", err);
-    res.redirect(`http://${req.headers.host}?error=downloadError`);
+    fs.unlinkSync(outputPath);
+    // console.log("error ", err);
+    return res.status(400).json({ success: false, error: "Download failed . . ." });
   }
+  CLIENTS[req.query.uid].close();
 });
 
 module.exports = router;
