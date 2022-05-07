@@ -1,7 +1,10 @@
-const express = require("express");
-const server = require("http").createServer();
-const WSServer = require("ws").Server;
-const { createDownloadDirectory, CLIENTS, getUniqueID } = require("./utils/helpers");
+import express, { json } from "express";
+import http from "http";
+import { WebSocketServer } from "ws";
+import { createDownloadDirectory, CLIENTS, getUniqueID } from "./utils/helpers.js";
+
+// server setup
+const server = http.createServer();
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -9,34 +12,39 @@ const port = process.env.PORT || 4000;
 createDownloadDirectory();
 
 app.use(express.static("public"));
-app.use(express.json());
+app.use(json());
 
 app.use((_, res, next) => {
-  // res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.set('Access-Control-Allow-Origin', 'https://shirokatake.github.io');
+  res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+  // res.set('Access-Control-Allow-Origin', 'https://shirokatake.github.io');
   res.set('Access-Control-Allow-Methods', 'GET');
   res.set('Access-Control-Allow-Headers', '*');
   next();
 });
 
-const wss = new WSServer({ server: server, clientTracking: true });
+const wss = new WebSocketServer({ server: server, clientTracking: true });
 wss.on("connection", ws => {
   ws.id = getUniqueID();
   CLIENTS[ws.id] = ws;
   ws.send(ws.id);
 });
+wss.on("close", ws => {
+  console.log("closed");
+});
 
-const suggestions = require("./routes/suggestions");
-const metainfo = require("./routes/metainfo");
-const playlist = require("./routes/playlist");
-const download = require("./routes/download");
+// routing
+import suggestions from "./routes/suggestions.js";
+import metainfo from "./routes/metainfo.js";
+import playlist from "./routes/playlist.js";
+import download from "./routes/download.js";
 
 app.use(suggestions);
 app.use(metainfo);
 app.use(playlist);
 app.use(download);
 
-let Queue = require('bull');
+// worker test
+import Queue from 'bull';
 const REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 const workQueue = new Queue('work', REDIS_URL);
 

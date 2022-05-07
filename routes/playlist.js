@@ -1,7 +1,7 @@
-const express = require("express");
-const router = express.Router();
-const ytpl = require("ytpl");
+import express from "express";
+import ytpl from "ytpl";
 
+const router = express.Router();
 router.get("/playlist", async (req, res) => {
   try {
     const { pl: url } = req.query;
@@ -13,4 +13,4 @@ router.get("/playlist", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

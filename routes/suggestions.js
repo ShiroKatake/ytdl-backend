@@ -1,7 +1,7 @@
-const express = require("express");
-const router = express.Router();
-const ytsr = require("ytsr");
+import express from "express";
+import ytsr from "ytsr";
 
+const router = express.Router();
 router.get("/suggestions", async (req, res) => {
   const { search } = req.query;
   const options = {
@@ -19,4 +19,4 @@ router.get("/suggestions", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

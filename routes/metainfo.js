@@ -1,6 +1,5 @@
-const express = require("express");
-const router = express.Router();
-const ytdl = require("ytdl-core");
+import express from "express";
+import ytdl from "ytdl-core";
 
 const reqOptions = {
   requestOptions: {
@@ -11,6 +10,7 @@ const reqOptions = {
   },
 };
 
+const router = express.Router();
 router.get("/metainfo", async (req, res) => {
   const { url } = req.query;
   if (!ytdl.validateID(url) && !ytdl.validateURL(url)) {
@@ -25,4 +25,4 @@ router.get("/metainfo", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

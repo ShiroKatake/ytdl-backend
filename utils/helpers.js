@@ -1,22 +1,23 @@
-const fs = require("fs");
-const CLIENTS = [];
+import { existsSync, mkdirSync } from "fs";
 
-const dir = "public";
-const subDir = "uploads";
-const createDownloadDirectory = () => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
+export const CLIENTS = [];
+
+export const dir = "public";
+export const subDir = "uploads";
+export const createDownloadDirectory = () => {
+  if (!existsSync(dir)) {
+    mkdirSync(dir);
   }
-  if (!fs.existsSync(`${dir}/${subDir}`)) {
-    fs.mkdirSync(`${dir}/${subDir}`);
+  if (!existsSync(`${dir}/${subDir}`)) {
+    mkdirSync(`${dir}/${subDir}`);
   }
 };
 
-const generateDownloadPath = outputName => {
+export const generateDownloadPath = outputName => {
   return `${dir}/${subDir}/${outputName}`;
 };
 
-const getUniqueID = () => {
+export const getUniqueID = () => {
   function s4() {
     return Math.floor((1 + Math.random()) * 0x10000)
       .toString(16)
@@ -24,8 +25,3 @@ const getUniqueID = () => {
   }
   return s4() + s4() + "-" + s4();
 };
-
-module.exports.CLIENTS = CLIENTS;
-module.exports.createDownloadDirectory = createDownloadDirectory;
-module.exports.generateDownloadPath = generateDownloadPath;
-module.exports.getUniqueID = getUniqueID;

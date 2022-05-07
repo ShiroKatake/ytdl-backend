@@ -1,13 +1,19 @@
-const express = require("express");
-const router = express.Router();
-const cp = require("child_process");
-const ffmpeg = require("ffmpeg-static");
-const fs = require("fs");
-const ytdl = require("ytdl-core");
-const { audioEncodeConfig, encodeOptions, videoEncodeConfig } = require("../utils/ffmpeg");
-const { generateDownloadPath, getUniqueID, CLIENTS } = require("../utils/helpers");
+// import Queue from 'bull';
+import express from "express";
+import cp from "child_process";
+import ffmpeg from "ffmpeg-static";
+import fs from "fs";
+import ytdl from "ytdl-core";
+import { audioEncodeConfig, encodeOptions, videoEncodeConfig } from "../utils/ffmpeg.js";
+import { generateDownloadPath, getUniqueID, CLIENTS } from "../utils/helpers.js";
+// const workQueue = new Queue('work', REDIS_URL);
 
+const router = express.Router();
 router.get("/download", async (req, res) => {
+  // const job = await workQueue.add(req.query);
+  // //TODO: Encrypt this id
+  // res.json({ id: job.id });
+
   const { v: url, format: format } = req.query;
   if (!ytdl.validateID(url) && !ytdl.validateURL(url)) {
     return res.status(400).json({ success: false, error: "Not a valid YouTube Id!" });
@@ -82,4 +88,4 @@ router.get("/download", async (req, res) => {
   CLIENTS[req.query.uid].close();
 });
 
-module.exports = router;
+export default router;

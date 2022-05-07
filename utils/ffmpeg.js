@@ -1,5 +1,5 @@
 //prettier-ignore
-const audioEncodeConfig = [
+export const audioEncodeConfig = [
   // Remove ffmpeg's console spamming
   "-loglevel", "8", "-hide_banner",
   // Redirect/Enable progress messages
@@ -11,7 +11,7 @@ const audioEncodeConfig = [
 ];
 
 //prettier-ignore
-const videoEncodeConfig = [
+export const videoEncodeConfig = [
   // Remove ffmpeg's console spamming
   "-loglevel", "8", "-hide_banner",
   // Redirect/Enable progress messages
@@ -27,7 +27,7 @@ const videoEncodeConfig = [
 ];
 
 //prettier-ignore
-const encodeOptions = {
+export const encodeOptions = {
   windowsHide: true,
   stdio: [
     /* Standard: stdin, stdout, stderr */
@@ -35,7 +35,3 @@ const encodeOptions = {
     "pipe", "pipe", "pipe",
   ],
 };
-
-module.exports.audioEncodeConfig = audioEncodeConfig;
-module.exports.videoEncodeConfig = videoEncodeConfig;
-module.exports.encodeOptions = encodeOptions;

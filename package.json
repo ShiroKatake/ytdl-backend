@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "nodemon index.js"
   },
+  "type": "module",
   "dependencies": {
     "bull": "^4.8.2",
     "content-disposition": "^0.5.3",
