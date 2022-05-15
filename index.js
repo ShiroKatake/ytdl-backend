@@ -7,7 +7,7 @@ import { createDownloadDirectory } from "./utils/helpers.js";
 import suggestions from "./routes/suggestions.js";
 import metainfo from "./routes/metainfo.js";
 import playlist from "./routes/playlist.js";
-import download from "./routes/download_websocket.js";
+import download from "./routes/download.js";
 
 // server setup
 const server = http.createServer();
