@@ -1,22 +1,15 @@
-// import Queue from 'bull';
-import express from "express";
 import cp from "child_process";
 import ffmpeg from "ffmpeg-static";
 import fs from "fs";
 import ytdl from "ytdl-core";
 import { audioEncodeConfig, encodeOptions, videoEncodeConfig } from "../utils/ffmpeg.js";
-import { generateDownloadPath, getUniqueID, CLIENTS } from "../utils/helpers.js";
-// const workQueue = new Queue('work', REDIS_URL);
+import { generateDownloadPath, getUniqueID } from "../utils/helpers.js";
 
-const router = express.Router();
-router.get("/download", async (req, res) => {
-  // const job = await workQueue.add(req.query);
-  // //TODO: Encrypt this id
-  // res.json({ id: job.id });
-
-  const { v: url, format: format } = req.query;
+const download = (req, ws) => {
+  // ws.send("hi");
+  const { v: url, format: format } = req;
   if (!ytdl.validateID(url) && !ytdl.validateURL(url)) {
-    return res.status(400).json({ success: false, error: "Not a valid YouTube Id!" });
+    ws.send({ success: false, error: "Not a valid YouTube Id!" });
   }
 
   const tracker = {
@@ -64,7 +57,7 @@ router.get("/download", async (req, res) => {
     }
 
     ffmpegProcess.stdio[3].on("data", () => {
-      CLIENTS[req.query.uid].send(
+      ws.send(
         JSON.stringify({
           downloaded: tracker.audio.downloaded + tracker.video.downloaded,
           total: tracker.audio.total + tracker.video.total,
@@ -73,19 +66,16 @@ router.get("/download", async (req, res) => {
     });
 
     ffmpegProcess.on("close", async () => {
-      res.download(outputPath, outputName, async err => {
-        if (err) throw err;
-        fs.unlinkSync(outputPath);
-        res.end();
-        //console.log("done");
-      });
+      const buffer = fs.readFileSync(outputPath);
+      await ws.send(buffer);
+      fs.unlinkSync(outputPath);
+      // ws.close();
     });
   } catch (err) {
     fs.unlinkSync(outputPath);
     // console.log("error ", err);
-    return res.status(400).json({ success: false, error: "Download failed . . ." });
+    ws.send({ success: false, error: "Download failed . . ." });
   }
-  CLIENTS[req.query.uid].close();
-});
+};
 
-export default router;
+export default download;
