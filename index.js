@@ -18,9 +18,12 @@ createDownloadDirectory();
 
 app.use(express.static("public"));
 app.use(json());
-app.use((_, res, next) => {
-  // res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
-  const allowedOrigins = ["https://shirokatake.github.io", "https://shirokatake-ytdl-frontend-test.herokuapp.com/"];
+app.use((req, res, next) => {
+  const allowedOrigins = [
+    // "http://localhost:3000",
+    "https://shirokatake.github.io",
+    "https://shirokatake-ytdl-frontend-test.herokuapp.com/"
+  ];
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
