@@ -20,7 +20,7 @@ app.use(express.static("public"));
 app.use(json());
 app.use((req, res, next) => {
   const allowedOrigins = [
-    // "http://localhost:3000",
+    "http://localhost:3000",
     "https://shirokatake.github.io",
     "https://shirokatake-ytdl-frontend-test.herokuapp.com/"
   ];

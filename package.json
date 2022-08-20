@@ -18,7 +18,7 @@
     "socket.io": "^4.5.1",
     "throng": "^5.0.0",
     "ws": "^8.2.3",
-    "ytdl-core": "^4.11.0",
+    "ytdl-core": "https://github.com/GreepTheSheep/node-ytdl-core",
     "ytsr": "^3.8.0",
     "ytpl": "^2.3.0"
   },
