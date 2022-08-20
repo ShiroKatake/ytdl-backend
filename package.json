@@ -23,6 +23,6 @@
     "ytpl": "^2.3.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.16"
+    "nodemon": "^2.0.19"
   }
 }
