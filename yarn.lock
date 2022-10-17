@@ -178,10 +178,10 @@ buffer-from@^1.0.0:
   resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.2.tgz#2b146a6fd72e80b4f55d255f35ed59a3a9a41bd5"
   integrity sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==
 
-bull@^4.8.3:
-  version "4.8.3"
-  resolved "https://registry.yarnpkg.com/bull/-/bull-4.8.3.tgz#4ab67029fee1183dcb7185895b20dc08c02d6bf2"
-  integrity sha512-oOHr+KTLu3JM5V9TXsg18/1xyVQceoYCFiGrXZOpu9abZn3W3vXJtMBrwB6Yvl/RxSKVVBpoa25RF/ya3750qg==
+bull@^4.10.1:
+  version "4.10.1"
+  resolved "https://registry.yarnpkg.com/bull/-/bull-4.10.1.tgz#f14974b6089358b62b495a2cbf838aadc098e43f"
+  integrity sha512-Fp21tRPb2EaZPVfmM+ONZKVz2RA+to+zGgaTLyCKt3JMSU8OOBqK8143OQrnGuGpsyE5G+9FevFAGhdZZfQP2g==
   dependencies:
     cron-parser "^4.2.1"
     debuglog "^1.0.0"
